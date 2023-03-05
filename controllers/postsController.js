@@ -90,14 +90,14 @@ const gettimelinePost = async (req, res) => {
     try {
         const crrentUser = await userSchema.findById(req.body.userId)
         const userPosts = await Post.find({ userId: req.body.userId })
+
         const friendPosts = await Promise.all(crrentUser.following.map((friendId) => {
                 return Post.find({ userId: friendId });
             })
         );
-        res
 
 
-        res.status(200).json({ posts: userPosts.concat(...friendPosts) })
+        res.status(200).json(userPosts.concat(...friendPosts) )
     } catch (error) {
         res.status(400).json({ "message": "error occurd" })
     }

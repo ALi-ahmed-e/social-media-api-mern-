@@ -158,10 +158,42 @@ const togglefollowUser = async (req, res) => {
 }
 
 
+const searcUsers = async (req, res) => {
+    const query = req.params.q
+
+    try {
+        if (query) {
+            const users = await User.aggregate([
+                {
+                    $search: {
+                        index: "default",
+                        text: {
+                            query: query,
+                            path: {
+                                wildcard: "*"
+                            }
+                        }
+                    }
+                }
+            ])
+
+            res.status(200).json({users})
+
+        } else {
+            res.status(400).json({ "message": "you have to add search query" })
+        }
+
+    } catch (error) {
+        res.status(400).json({ "message": "error occurd" })
+    }
+
+
+}
+
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     })
 }
-module.exports = { register, login, updateUser, deleteUser, getUser, togglefollowUser }
+module.exports = { register, login, updateUser, deleteUser, getUser, togglefollowUser,searcUsers }

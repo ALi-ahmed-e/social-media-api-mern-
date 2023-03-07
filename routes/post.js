@@ -20,7 +20,7 @@ router.put("/like-post/:id",protect, togglelikeePost)
 router.get("/get-post/:id",protect, getPost)
 
 //get timeline
-router.get("/get-timeline-post",protect, gettimelinePost)
+router.get("/get-timeline-post/:id",protect, gettimelinePost)
 
 
 

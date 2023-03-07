@@ -177,7 +177,7 @@ const searcUsers = async (req, res) => {
                 }
             ])
 
-            res.status(200).json({users})
+            res.status(200).json({ users })
 
         } else {
             res.status(400).json({ "message": "you have to add search query" })
@@ -190,10 +190,21 @@ const searcUsers = async (req, res) => {
 
 }
 
+const getsugestedUsers = async (req, res) => {
+
+    try {
+        const users = await User.find({}).limit(2)
+        res.status(200).json({ users })
+    } catch (err) {
+        res.status(400).json({ "message": err})
+        res.status(400).json({ "message": "error occurd" })
+    }
+
+}
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     })
 }
-module.exports = { register, login, updateUser, deleteUser, getUser, togglefollowUser,searcUsers }
+module.exports = { register, login, updateUser, deleteUser, getUser, togglefollowUser, searcUsers, getsugestedUsers }

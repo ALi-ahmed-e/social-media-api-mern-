@@ -1,4 +1,4 @@
-const { register,login ,updateUser, deleteUser, getUser,togglefollowUser, searcUsers} = require("../controllers/userController")
+const { register,login ,updateUser, deleteUser, getUser,togglefollowUser, searcUsers, getsugestedUsers} = require("../controllers/userController")
 const router = require("express").Router()
 
 
@@ -23,6 +23,9 @@ router.post("/follow-user/:id", togglefollowUser)
 
 //search users
 router.get("/search-users/:q", searcUsers)
+
+//get suggested users
+router.get("/get-sug-users", getsugestedUsers)
 
 
 

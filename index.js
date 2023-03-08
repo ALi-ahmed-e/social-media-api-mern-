@@ -9,7 +9,9 @@ const port = process.env.PORT || 5000
 const authRoute = require("./routes/auth")
 const userRoute = require("./routes/user")
 const postsRoute = require("./routes/post")
+const cookieParser = require("cookie-parser");
 
+app.use(cookieParser());
 app.use(express.json())
 app.use(cors())
 app.use(helmet())

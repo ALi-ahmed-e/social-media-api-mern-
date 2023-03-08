@@ -31,8 +31,7 @@ const register = async (req, res) => {
             })
 
             const { password, ...other } = user._doc
-            res.cookie("access-token", generateToken(user._id), { maxAge: 2592000000 })
-            res.status(200).json(other)
+            res.status(200).json({...other,token:generateToken(user._id)})
         }
     } catch (error) {
         res.status(400).json({ "message": error.message })
@@ -51,8 +50,9 @@ const login = async (req, res) => {
 
 
             const { password, ...other } = user._doc
-            res.cookie("access-token", generateToken(user._id), { maxAge: 2592000000 })
-            res.status(200).json(other)
+
+            res.status(200).json({...other,token:generateToken(user._id)})
+
 
         } else {
             res.status(400).json({ "message": "wrong email or password" })
@@ -62,18 +62,7 @@ const login = async (req, res) => {
     }
 }
 
-const logout = async (req, res) => {
 
-
-    try {
-
-        res.clearCookie("access-token")
-        res.status(200).json({ "message": "logged out successfuly" })
-
-    } catch (error) {
-        res.status(400).json({ "message": error.message  })
-    }
-}
 
 
 
@@ -82,4 +71,4 @@ const generateToken = (id) => {
         expiresIn: '30d',
     })
 }
-module.exports = { register, login,logout }
+module.exports = { register, login }

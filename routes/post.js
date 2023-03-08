@@ -1,4 +1,4 @@
-const {addPost,updatePost, deletePost, togglelikeePost, getPost, gettimelinePost} = require("../controllers/postsController")
+const {addPost,updatePost, deletePost, togglelikeePost, getPost, gettimelinePost,commentPost, deletecommentPost} = require("../controllers/postsController")
 const router = require("express").Router()
 const protect = require('../middleware/authMiddleware')
 
@@ -16,11 +16,17 @@ router.delete("/delete-post/:id",protect, deletePost)
 //like post
 router.put("/like-post/:id",protect, togglelikeePost)
 
+//comment post
+router.put("/comment-post/:id",protect, commentPost)
+
+//delete comment 
+router.put("/delete-comment-post/:id/:cmtid",protect, deletecommentPost)
+
 //get post
 router.get("/get-post/:id",protect, getPost)
 
 //get timeline
-router.get("/get-timeline-post/:id",protect, gettimelinePost)
+router.get("/get-timeline-post",protect, gettimelinePost)
 
 
 

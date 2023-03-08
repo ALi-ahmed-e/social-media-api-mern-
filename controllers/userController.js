@@ -1,110 +1,55 @@
 const jwt = require('jsonwebtoken')
 const User = require("../models/userSchema")
 const bcrypt = require("bcrypt")
+const postSchema = require('../models/postSchema')
 
 
 
 
 
 
-const register = async (req, res) => {
-
-    const { name, email } = req.body
-    const entredpassword = req.body.password
-
-    try {
-
-        const userExists = await User.findOne({ email })
-        if (userExists) {
-            res.status(400).json({ "message": 'user already exists' })
-        } else {
-            const salt = await bcrypt.genSalt(10)
-            const hashedPassword = await bcrypt.hash(entredpassword, salt)
-
-
-            const user = await User.create({
-                name: name,
-                email: email,
-                password: hashedPassword,
-                profileImage: `https://ui-avatars.com/api/?background=random&name=${name}&format=png`
-            })
-
-            const { password, ...other } = user._doc
-            res.status(200).json({ ...other, token: generateToken(user._id), })
-        }
-    } catch (error) {
-        res.status(400).json({ "message": error.message })
-    }
-}
-
-const login = async (req, res) => {
-
-    const { email, password } = req.body
-
-    try {
-
-        const user = await User.findOne({ email })
-
-        if (user && (await bcrypt.compare(password, user.password))) {
-
-
-            const { password, ...other } = user._doc
-            res.status(200).json({ ...other, token: generateToken(user._id), })
-
-        } else {
-            res.status(400).json({ "message": "wrong email or password" })
-        }
-    } catch (error) {
-        res.status(400).json({ "message": "error occurd" })
-    }
-}
 
 
 
 const updateUser = async (req, res) => {
-    const { password, name, profileImage, coverImage } = req.body
-    const id = req.params.id
+    const { thepassword} = req.body
+    const id = req.user._id.toString()
 
 
     try {
         if (id) {
-
-            const user = await User.findById(id)
-
-
-            if (password) {
+            if (thepassword) {
 
                 const salt = await bcrypt.genSalt(10)
-                const hashedPassword = await bcrypt.hash(password, salt)
+                const hashedPassword = await bcrypt.hash(thepassword, salt)
 
-                const updatedUser = await User.findByIdAndUpdate(id, {
-                    name,
-                    hashedPassword,
-                    profileImage,
-                    coverImage
-                })
+                await User.findByIdAndUpdate(id, req.body)
+                const updatedUser = await User.findByIdAndUpdate(id, {password:hashedPassword})
                 const { password, ...other } = updatedUser._doc
-                res.status(200).json({ ...other, token: generateToken(user._id), })
+                res.status(200).json(other)
             } else {
                 await User.findByIdAndUpdate(id, req.body)
                 const updatedUser = await User.findById(id)
                 const { password, ...other } = updatedUser._doc
-                res.status(200).json({ ...other, token: generateToken(user._id), })
+
+                res.status(200).json(other)
             }
         } else {
             res.status(400).json({ "message": "user id needed" })
         }
     } catch (error) {
+        res.status(400).json({ "message": error.message })
         res.status(400).json({ "message": "error occurd" })
     }
 }
 
 
 const deleteUser = async (req, res) => {
-    const id = req.params.id
+    const id = req.user._id.toString();
 
     try {
         await User.findByIdAndDelete(id)
+        await postSchema.deleteMany({user:id})
         res.status(200).json({ "message": "account successfuly deleted" })
 
     } catch (error) {
@@ -131,20 +76,19 @@ const togglefollowUser = async (req, res) => {
     const id = req.params.id
 
 
-
     try {
 
-        if (id !== req.body.userId) {
+        if (id !== req.user._id.toString()) {
 
             const user = await User.findById(id)
-            const currentuser = await User.findById(req.body.userId)
-            if (!user.followers.includes(req.body.userId)) {
-                await user.updateOne({ $push: { followers: req.body.userId } })
-                await currentuser.updateOne({ $push: { following: id } })
+            const currentuser = await User.findById(req.user._id.toString())
+            if (!user.Followers.includes(req.body.userId)) {
+                await user.updateOne({ $push: { Followers: req.user._id.toString() } })
+                await currentuser.updateOne({ $push: { Following: id } })
                 res.status(200).json({ "message": "user followed" })
             } else {
-                await user.updateOne({ $pull: { followers: req.body.userId } })
-                await currentuser.updateOne({ $pull: { following: id } })
+                await user.updateOne({ $pull: { Followers: req.user._id.toString() } })
+                await currentuser.updateOne({ $pull: { Following: id } })
                 res.status(200).json({ "message": "user unfollowed" })
             }
         } else {
@@ -202,9 +146,5 @@ const getsugestedUsers = async (req, res) => {
 
 }
 
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '30d',
-    })
-}
-module.exports = { register, login, updateUser, deleteUser, getUser, togglefollowUser, searcUsers, getsugestedUsers }
+
+module.exports = {updateUser, deleteUser, getUser, togglefollowUser, searcUsers, getsugestedUsers }

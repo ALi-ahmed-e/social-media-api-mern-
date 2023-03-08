@@ -6,6 +6,7 @@ const cors = require("cors")
 const connectToDb = require("./config/connectToDB")
 const helmet = require("helmet")
 const port = process.env.PORT || 5000
+const authRoute = require("./routes/auth")
 const userRoute = require("./routes/user")
 const postsRoute = require("./routes/post")
 
@@ -14,11 +15,10 @@ app.use(cors())
 app.use(helmet())
 connectToDb()
 
-app.use("/api/user",userRoute)
-app.use("/api/posts",postsRoute)
+app.use("/api/auth", authRoute)
+app.use("/api/user", userRoute)
+app.use("/api/posts", postsRoute)
 
-
-app.get('/',(req,res)=>{})
 
 
 app.listen(port, () => console.log('server started'))

@@ -1,41 +1,45 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-    name: {
+    username: {
         type: String,
-        required: true,
-        min: 3,
-        max: 20,
-        unique: true
+        required: true
     },
     email: {
         type: String,
         required: true,
-        unique: true
+        lowercase:true
     },
     password: {
         type: String,
-        required: true,
-        min: 6,
+        required: true
+    },
+    Followers: {
+        type: Array,
+        default:[]
+    },
+    Following: {
+        type: Array,
+        default:[]
+    },
+    phonenumber: {
+        type: Number,
+        required: true
+    },
+
+    profile: {
+        type: String,
     },
     profileImage: {
         type: String,
-        default: ""
+        required: true
     },
     coverImage: {
         type: String,
-        default: ""
     },
-    followers: {
-        type: Array,
-        default: []
-    },
-    following: {
-        type: Array
-        , default: []
-    },
-    isAdmin: {
+    verifed: {
         type: Boolean,
+        required: true,
         default: false
     }
 },{timestamps:true})

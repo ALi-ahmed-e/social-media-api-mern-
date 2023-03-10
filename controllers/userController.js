@@ -82,7 +82,7 @@ const togglefollowUser = async (req, res) => {
 
             const user = await User.findById(id)
             const currentuser = await User.findById(req.user._id.toString())
-            if (!user.Followers.includes(req.body.userId)) {
+            if (!user.Followers.includes(req.user._id.toString())) {
                 await user.updateOne({ $push: { Followers: req.user._id.toString() } })
                 await currentuser.updateOne({ $push: { Following: id } })
                 res.status(200).json({ "message": "user followed" })

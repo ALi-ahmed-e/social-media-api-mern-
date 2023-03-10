@@ -131,6 +131,21 @@ const getPost = async (req, res) => {
     }
 }
 
+const getSomeonePosts = async (req, res) => {
+    const userId = req.params.id
+    try {
+        const resp = await Post.find({user: userId })
+        const posts = resp
+        res.status(200).json({posts})
+
+
+    } catch (error) {
+        res.status(400).json({ "message": error.message })
+        res.status(400).json({ "message": "error occurd" })
+    }
+}
+
+
 const gettimelinePost = async (req, res) => {
     try {
         const crrentUser = await userSchema.findById(req.user._id.toString())
@@ -153,4 +168,4 @@ const gettimelinePost = async (req, res) => {
 
 
 
-module.exports = { addPost, updatePost, deletePost, togglelikeePost, getPost, gettimelinePost, commentPost, deletecommentPost, }
+module.exports = { addPost, updatePost, getSomeonePosts, deletePost, togglelikeePost, getPost, gettimelinePost, commentPost, deletecommentPost, }

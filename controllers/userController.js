@@ -137,7 +137,7 @@ const searcUsers = async (req, res) => {
 const getsugestedUsers = async (req, res) => {
 
     try {
-        const users = await User.find({}).limit(2)
+        const users = await User.find({}).limit(10)
         res.status(200).json({ users })
     } catch (err) {
         res.status(400).json({ "message": err})

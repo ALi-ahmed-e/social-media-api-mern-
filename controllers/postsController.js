@@ -1,6 +1,6 @@
 const Post = require("../models/postSchema")
 const userSchema = require('../models/userSchema')
-
+const cloudinary = require("../utilis/cloudinary")
 
 
 
@@ -8,14 +8,26 @@ const userSchema = require('../models/userSchema')
 
 
 const addPost = async (req, res) => {
+    const { image,title } = req.body
+
+
 
     try {
-        const newpost = await Post.create({ ...req.body, user: req.user._id })
+
+        const result = await cloudinary.uploader.upload(image,{
+            folder:"posts",
+
+        })
+    
+        const newpost = await Post.create({
+            image:result.secure_url,
+            title,
+            user:req.user._id
+        })
 
         res.status(200).json(newpost)
     } catch (error) {
         res.status(400).json({ "message": error.message })
-        // res.status(400).json({ "message": "error occurd" })
     }
 }
 
@@ -134,9 +146,9 @@ const getPost = async (req, res) => {
 const getSomeonePosts = async (req, res) => {
     const userId = req.params.id
     try {
-        const resp = await Post.find({user: userId })
+        const resp = await Post.find({ user: userId })
         const posts = resp
-        res.status(200).json({posts})
+        res.status(200).json({ posts })
 
 
     } catch (error) {

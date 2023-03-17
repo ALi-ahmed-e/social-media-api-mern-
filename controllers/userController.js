@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const User = require("../models/userSchema")
 const bcrypt = require("bcrypt")
 const postSchema = require('../models/postSchema')
+const cloudinary = require("../utilis/cloudinary")
 
 
 
@@ -12,28 +13,48 @@ const postSchema = require('../models/postSchema')
 
 
 const updateUser = async (req, res) => {
-    const { thepassword} = req.body
+    const { thepassword, profileImage } = req.body
     const id = req.user._id.toString()
 
 
     try {
         if (id) {
-            if (thepassword) {
+            // if (thepassword) {
 
-                const salt = await bcrypt.genSalt(10)
-                const hashedPassword = await bcrypt.hash(thepassword, salt)
+            //     const salt = await bcrypt.genSalt(10)
+            //     const hashedPassword = await bcrypt.hash(thepassword, salt)
 
-                await User.findByIdAndUpdate(id, req.body)
-                const updatedUser = await User.findByIdAndUpdate(id, {password:hashedPassword})
-                const { password, ...other } = updatedUser._doc
-                res.status(200).json(other)
+            //     await User.findByIdAndUpdate(id, req.body)
+            //     const updatedUser = await User.findByIdAndUpdate(id, { password: hashedPassword })
+            //     const { password, ...other } = updatedUser._doc
+            //     res.status(200).json(other)
+            // } else {
+            if ( req.body.profileImage) {
+
+
+                const result = await cloudinary.uploader.upload( req.body.profileImage, {
+                    folder: "users/images",
+                    width:130,
+                    height:130,
+                    crop:'scale'
+                })
+
+
+                const { profileImage, ...rest } = req.body
+                
+                await User.findByIdAndUpdate(id, { ...rest, profileImage: result.secure_url })
+
             } else {
                 await User.findByIdAndUpdate(id, req.body)
-                const updatedUser = await User.findById(id)
-                const { password, ...other } = updatedUser._doc
-
-                res.status(200).json(other)
             }
+
+
+
+            const updatedUser = await User.findById(id)
+            const { password, ...other } = updatedUser._doc
+
+            res.status(200).json(other)
+            // }
         } else {
             res.status(400).json({ "message": "user id needed" })
         }
@@ -49,7 +70,7 @@ const deleteUser = async (req, res) => {
 
     try {
         await User.findByIdAndDelete(id)
-        await postSchema.deleteMany({user:id})
+        await postSchema.deleteMany({ user: id })
         res.status(200).json({ "message": "account successfuly deleted" })
 
     } catch (error) {
@@ -140,11 +161,11 @@ const getsugestedUsers = async (req, res) => {
         const users = await User.find({}).limit(10)
         res.status(200).json({ users })
     } catch (err) {
-        res.status(400).json({ "message": err})
+        res.status(400).json({ "message": err })
         res.status(400).json({ "message": "error occurd" })
     }
 
 }
 
 
-module.exports = {updateUser, deleteUser, getUser, togglefollowUser, searcUsers, getsugestedUsers }
+module.exports = { updateUser, deleteUser, getUser, togglefollowUser, searcUsers, getsugestedUsers }

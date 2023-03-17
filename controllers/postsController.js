@@ -15,7 +15,7 @@ const addPost = async (req, res) => {
     try {
         if (image) {
             const result = await cloudinary.uploader.upload(image, {
-                folder: "posts",
+                folder: "posts/images",
 
             })
 

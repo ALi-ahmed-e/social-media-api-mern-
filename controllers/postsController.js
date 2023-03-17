@@ -8,24 +8,31 @@ const cloudinary = require("../utilis/cloudinary")
 
 
 const addPost = async (req, res) => {
-    const { image,title } = req.body
+    const { image, title } = req.body
 
 
 
     try {
+        if (image) {
+            const result = await cloudinary.uploader.upload(image, {
+                folder: "posts",
 
-        const result = await cloudinary.uploader.upload(image,{
-            folder:"posts",
+            })
 
-        })
-    
-        const newpost = await Post.create({
-            image:result.secure_url,
-            title,
-            user:req.user._id
-        })
+            const newpost = await Post.create({
+                image: result.secure_url,
+                title,
+                user: req.user._id
+            })
 
-        res.status(200).json(newpost)
+            res.status(200).json(newpost)
+        } else {
+
+            const newpost = await Post.create({ ...req.body, user: req.user._id })
+
+            res.status(200).json(newpost)
+        }
+
     } catch (error) {
         res.status(400).json({ "message": error.message })
     }
